@@ -1,0 +1,8 @@
+flake8
+flake8-formatter-junit-xml
+flake8-docstrings
+unittest-xml-reporting
+xmlschema
+twine
+wheel
+-r requirements.txt
