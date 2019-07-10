@@ -1,6 +1,6 @@
 flake8
 flake8-formatter-junit-xml
-flake8-docstrings
+flake8-comprehensions
 unittest-xml-reporting
 xmlschema
 twine

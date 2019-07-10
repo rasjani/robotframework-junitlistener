@@ -34,9 +34,11 @@ class JunitListener(object):
             self._current_suite = attrs['longname']
             current_suite = self._current_suite
             attrs['name'] = name
+            attrs['libraries'] = set()
+            attrs['variables'] = set()
+            attrs['resources'] = set()
             self._suites[current_suite] = attrs
             self._testcases[current_suite] = {}
-            # self.output.append(f"start_suite: {name} {attrs}")
 
     def end_suite(self, name, attrs):
         if len(attrs['tests']) > 0:
@@ -69,16 +71,16 @@ class JunitListener(object):
         # self.output.append(f"log_message: {message}")
 
     def library_import(self, name, attrs):
-        pass
-        # self.output.append(f"library_import: {name} {attrs}")
+        if self._current_suite:
+            self._suites[self._current_suite]['libraries'].add(name)
 
     def resource_import(self, name, attrs):
-        pass
-        # self.output.append(f"resource_import: {name} {attrs}")
+        if self._current_suite:
+            self._suites[self._current_suite]['resources'].add(attrs['source'])
 
     def variables_import(self, name, attrs):
-        pass
-        # self.output.append(f"variables_import: {name} {attrs}")
+        if self._current_suite:
+            self._suites[self._current_suite]['variables'].add(attrs['source'])
 
     def output_file(self, filename):
         self.default_properties['output_file'] = filename
@@ -102,6 +104,10 @@ class JunitListener(object):
             if suite_attrs['metadata']:
                 for key, val in suite_attrs['metadata'].items():
                     properties[key] = val
+
+            for key in ['libraries', 'resources', 'variables']:
+                if suite_attrs[key]:
+                    properties[key] = ",".join(suite_attrs[key])
 
             suite = TestSuite(suite_attrs['name'],
                               package=suite_attrs['longname'],
@@ -132,5 +138,6 @@ class JunitListener(object):
         with open("log.txt","w") as output:
             output.write("\n".join(self.output))
         """
+
         with open(self.junit_file, "w") as output:
             TestSuite.to_file(output, results, schema_version=self.schema_version)

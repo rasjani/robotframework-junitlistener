@@ -51,11 +51,11 @@ class TestSuite(object):
         """
 
         # build the test suite element
-        test_suite_attributes = dict()
+        test_suite_attributes = {}
         test_suite_attributes['name'] = decode(self.name, encoding)
         if any(c.assertions for c in self.test_cases):
             test_suite_attributes['assertions'] = \
-                str(sum([int(c.assertions) for c in self.test_cases if c.assertions]))
+                str(sum([int(c.assertions) for c in self.test_cases if c.assertions]))  # noqa: C407
         if self.schema_version < 10:
             test_suite_attributes['disabled'] = \
                 str(len([c for c in self.test_cases if not c.is_enabled]))
@@ -66,7 +66,7 @@ class TestSuite(object):
         test_suite_attributes['skipped'] = \
             str(len([c for c in self.test_cases if c.is_skipped()]))
         test_suite_attributes['time'] = \
-            str(math.floor(sum(c.elapsed_sec for c in self.test_cases if c.elapsed_sec) * 1000 )/1000)
+            str(math.floor(sum(c.elapsed_sec for c in self.test_cases if c.elapsed_sec) * 1000) / 1000)
         test_suite_attributes['tests'] = str(len(self.test_cases))
 
         if self.hostname:
@@ -105,7 +105,7 @@ class TestSuite(object):
 
         # test cases
         for case in self.test_cases:
-            test_case_attributes = dict()
+            test_case_attributes = {}
             test_case_attributes['name'] = decode(case.name, encoding)
             if case.assertions:
                 # Number of assertions in the test case
