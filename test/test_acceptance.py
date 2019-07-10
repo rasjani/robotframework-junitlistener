@@ -7,9 +7,25 @@ from xmlrunner import XMLTestRunner
 import sys
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "vendor")
 sys.path.append(os.path.join(CURRENT_DIRECTORY, "..", "src"))
 from JunitListener import JunitListener  # noqa: E402
 
+
+def test_template(schema_version, temp_dir):
+    schema_file = os.path.join(VENDOR_DIRECTORY, f"junit-{schema_version}.xsd")
+    schema = xmlschema.XMLSchema(schema_file)
+    result_file = os.path.join(temp_dir, "results.xml")
+    robot.run("test",
+                listener=JunitListener(result_file, schema_version),
+                critical="working",
+                noncritical="notworking",
+                console="none",
+                log="NONE",
+                report="NONE",
+                output="NONE",
+                loglevel="NONE")
+    schema.validate(result_file)
 
 class JunitListenerAcceptanceTests(unittest.TestCase):
     def setUp(self):
@@ -20,53 +36,13 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_schema_8(self):
-        schema_version = 8
-        schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
-        schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name, "results.xml")
-        robot.run("test",
-                  listener=JunitListener(result_file, schema_version),
-                  critical="working",
-                  noncritical="notworking",
-                  console="none",
-                  log="NONE",
-                  report="NONE",
-                  output="NONE",
-                  loglevel="NONE")
-        schema.validate(result_file)
+        test_template(8, self.temp_dir.name)
 
     def test_schema_9(self):
-        schema_version = 9
-        schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
-        schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name, "results.xml")
-        robot.run("test",
-                  listener=JunitListener(result_file, schema_version),
-                  critical="working",
-                  noncritical="notworking",
-                  console="none",
-                  log="NONE",
-                  report="NONE",
-                  output="NONE",
-                  loglevel="NONE")
-        schema.validate(result_file)
+        test_template(9, self.temp_dir.name)
 
     def test_schema_10(self):
-        schema_version = 10
-        schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
-        schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name, "results.xml")
-        robot.run("test",
-                  listener=JunitListener(result_file, schema_version),
-                  critical="working",
-                  noncritical="notworking",
-                  stdout="NONE",
-                  console="none",
-                  log="NONE",
-                  report="NONE",
-                  output="NONE",
-                  loglevel="NONE")
-        schema.validate(result_file)
+        test_template(10, self.temp_dir.name)
 
 
 if __name__ == '__main__':
