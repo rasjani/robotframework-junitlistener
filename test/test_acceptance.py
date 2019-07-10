@@ -7,14 +7,13 @@ from xmlrunner import XMLTestRunner
 import sys
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(CURRENT_DIRECTORY,"..","src"))
-from JunitListener import JunitListener
-
+sys.path.append(os.path.join(CURRENT_DIRECTORY, "..", "src"))
+from JunitListener import JunitListener  # noqa: E402
 
 
 class JunitListenerAcceptanceTests(unittest.TestCase):
     def setUp(self):
-        self.vendor_directory = os.path.join(CURRENT_DIRECTORY,"..", "vendor")
+        self.vendor_directory = os.path.join(CURRENT_DIRECTORY, "..", "vendor")
         self.temp_dir = TemporaryDirectory()
 
     def tearDown(self):
@@ -24,7 +23,7 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
         schema_version = 8
         schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
         schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name,"results.xml")
+        result_file = os.path.join(self.temp_dir.name, "results.xml")
         robot.run("test",
                   listener=JunitListener(result_file, schema_version),
                   critical="working",
@@ -40,7 +39,7 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
         schema_version = 9
         schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
         schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name,"results.xml")
+        result_file = os.path.join(self.temp_dir.name, "results.xml")
         robot.run("test",
                   listener=JunitListener(result_file, schema_version),
                   critical="working",
@@ -56,7 +55,7 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
         schema_version = 10
         schema_file = os.path.join(self.vendor_directory, f"junit-{schema_version}.xsd")
         schema = xmlschema.XMLSchema(schema_file)
-        result_file = os.path.join(self.temp_dir.name,"results.xml")
+        result_file = os.path.join(self.temp_dir.name, "results.xml")
         robot.run("test",
                   listener=JunitListener(result_file, schema_version),
                   critical="working",
@@ -76,4 +75,3 @@ if __name__ == '__main__':
             testRunner=XMLTestRunner(output=output),
             failfast=False, buffer=False, catchbreak=False)
     unittest.main()
-
