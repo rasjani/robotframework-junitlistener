@@ -1,4 +1,6 @@
 from .junit_xml import TestSuite, TestCase
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
+import os
 import datetime
 import tzlocal
 import time
@@ -147,6 +149,12 @@ class JunitListener(object):
         with open("log.txt","w") as output:
             output.write("\n".join(self.output))
         """
+        output_dir = "."
+        for name in ['output_file', 'log_file','report_file', 'debug_file']:
+            temp_file = self.default_properties.get(name, None)
+            if temp_file:
+                output_dir = os.path.dirname(temp_file)
+                break
 
-        with open(self.junit_file, "w") as output:
+        with open(os.path.join(output_dir, self.junit_file), "w") as output:
             TestSuite.to_file(output, results, schema_version=self.schema_version)
