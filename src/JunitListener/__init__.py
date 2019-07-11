@@ -1,8 +1,18 @@
 from .junit_xml import TestSuite, TestCase
+import datetime
 import tzlocal
 import time
 import locale
 import platform
+import pytz
+
+# 20190710 17:22:22.069
+
+def iso8601(robot_timestring, timezone_str):
+    date_time_obj = datetime.datetime.strptime(robot_timestring, '%Y%m%d %H:%M:%S.%f')
+    timezone = pytz.timezone(timezone_str)
+    timezone_date_time_obj = timezone.localize(date_time_obj)
+    return timezone_date_time_obj.isoformat()
 
 
 class JunitListener(object):
@@ -23,7 +33,7 @@ class JunitListener(object):
         self.hostname = platform.node()
         self.default_properties = {
             "timezone": tzlocal.get_localzone().zone,
-            "timezone_offset": time.strftime('%Z%z'),
+            "timezone_offset": time.timezone,
             "hostname": self.hostname,
             "language": language,
             "encoding": encoding,
@@ -112,7 +122,7 @@ class JunitListener(object):
             suite = TestSuite(suite_attrs['name'],
                               package=suite_attrs['longname'],
                               id=suite_attrs['id'],
-                              timestamp=suite_attrs['starttime'],
+                              timestamp=iso8601(suite_attrs['starttime'], self.default_properties['timezone']),
                               hostname=self.hostname,
                               properties=properties,
                               file=suite_attrs['source'],
@@ -120,7 +130,7 @@ class JunitListener(object):
             for case, case_attrs in self._testcases[suite_attrs['longname']].items():
                 case = TestCase(case_attrs['name'],
                                 classname=case_attrs['longname'],
-                                elapsed_sec=case_attrs['elapsedtime'] / 1000,
+                                elapsed_sec=round(case_attrs['elapsedtime'] / 1000, 3),
                                 schema_version=self.schema_version,
                                 )
                 if case_attrs['status'] != 'PASS':

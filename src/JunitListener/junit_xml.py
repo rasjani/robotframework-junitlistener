@@ -66,7 +66,7 @@ class TestSuite(object):
         test_suite_attributes['skipped'] = \
             str(len([c for c in self.test_cases if c.is_skipped()]))
         test_suite_attributes['time'] = \
-            str(math.floor(sum(c.elapsed_sec for c in self.test_cases if c.elapsed_sec) * 1000) / 1000)
+            str(round(sum(c.elapsed_sec for c in self.test_cases if c.elapsed_sec),3))
         test_suite_attributes['tests'] = str(len(self.test_cases))
 
         if self.hostname:
@@ -111,7 +111,7 @@ class TestSuite(object):
                 # Number of assertions in the test case
                 test_case_attributes['assertions'] = "%d" % case.assertions
             if case.elapsed_sec:
-                test_case_attributes['time'] = "%f" % case.elapsed_sec
+                test_case_attributes['time'] = "%.3f" % case.elapsed_sec
             if case.timestamp:
                 test_case_attributes['timestamp'] = decode(case.timestamp, encoding)
             if case.classname:
@@ -207,7 +207,7 @@ class TestSuite(object):
             attributes['time'] += float(ts_xml.get('time', 0))
             xml_element.append(ts_xml)
 
-        attributes['time'] = math.floor(attributes['time'] * 1000) / 1000
+        attributes['time'] = round(attributes['time'],3)
 
         for key, value in attributes.items():
             xml_element.set(key, str(value))
