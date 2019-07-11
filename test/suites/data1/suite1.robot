@@ -8,6 +8,7 @@ ${BAR}                    BAR
 *** Keywords ***
 First Keyword Example
   [Arguments]             ${msg}
+  Import Library          Collections
   Log To Console          First Keyword Example: ${msg}
 
 
