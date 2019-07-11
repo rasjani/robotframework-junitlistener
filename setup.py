@@ -40,15 +40,15 @@ Operating System :: POSIX :: Linux
 Operating System :: POSIX :: Other
 '''.strip().splitlines()
 
-setup(name="robotframework-{}".format(PACKAGE_NAME),
+setup(name="robotframework-{}".format(PACKAGE_NAME.lower()),
       version=VERSION,
       description='Jenkins/JUnit compliant robotframework test status listener.',
       long_description=long_description,
       long_description_content_type='text/markdown',
       classifiers=CLASSIFIERS,
-      url='https://github.com/salabs/robotframework-{}'.format(PACKAGE_NAME),
+      url='https://github.com/salabs/robotframework-{}'.format(PACKAGE_NAME.lower()),
       author='Jani Mikkonen',
-      author_email='jani.mikkonen@gmail.com',
+      author_email='jani.mikkonen@siili.com',
       license='APACHE',
       packages=find_packages("src", exclude=["tests"]),
       package_dir={'': 'src'},
