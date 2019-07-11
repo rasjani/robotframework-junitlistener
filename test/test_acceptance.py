@@ -17,17 +17,19 @@ def test_template(schema_version, temp_dir):
     schema = xmlschema.XMLSchema(schema_file)
     result_file = os.path.join(temp_dir, "results.xml")
     robot.run("test",
-                listener=JunitListener(result_file, schema_version),
-                critical="working",
-                noncritical="notworking",
-                console="none",
-                log="NONE",
-                report="NONE",
-                output="NONE",
-                loglevel="NONE")
+              listener=JunitListener(result_file, schema_version),
+              critical="working",
+              noncritical="notworking",
+              console="none",
+              log="NONE",
+              report="NONE",
+              output="NONE",
+              loglevel="NONE")
     schema.validate(result_file)
 
+
 class JunitListenerAcceptanceTests(unittest.TestCase):
+
     def setUp(self):
         self.vendor_directory = os.path.join(CURRENT_DIRECTORY, "..", "vendor")
         self.temp_dir = TemporaryDirectory()

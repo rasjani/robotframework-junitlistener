@@ -6,7 +6,6 @@ import locale
 import platform
 import pytz
 
-# 20190710 17:22:22.069
 
 def iso8601(robot_timestring, timezone_str):
     date_time_obj = datetime.datetime.strptime(robot_timestring, '%Y%m%d %H:%M:%S.%f')
