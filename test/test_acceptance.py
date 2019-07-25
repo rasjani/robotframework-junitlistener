@@ -12,12 +12,12 @@ sys.path.append(os.path.join(CURRENT_DIRECTORY, "..", "src"))
 from JunitListener import JunitListener  # noqa: E402
 
 
-def test_template(schema_version, temp_dir):
-    schema_file = os.path.join(VENDOR_DIRECTORY, f"junit-{schema_version}.xsd")
+def test_template(schema_base, temp_dir):
+    schema_file = os.path.join(VENDOR_DIRECTORY, f"{schema_base}.xsd")
     schema = xmlschema.XMLSchema(schema_file)
     result_file = os.path.join(temp_dir, "results.xml")
     robot.run("test",
-              listener=JunitListener(result_file, schema_version),
+              listener=JunitListener(result_file, schema_base),
               critical="working",
               noncritical="notworking",
               console="none",
@@ -38,13 +38,27 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_schema_8(self):
-        test_template(8, self.temp_dir.name)
+        schema_version = 8
+        schema_base = f"junit-{schema_version}"
+        test_template(schema_base, self.temp_dir.name)
 
     def test_schema_9(self):
-        test_template(9, self.temp_dir.name)
+        schema_version = 9
+        schema_base = f"junit-{schema_version}"
+        test_template(schema_base, self.temp_dir.name)
 
     def test_schema_10(self):
-        test_template(10, self.temp_dir.name)
+        schema_version = 10
+        schema_base = f"junit-{schema_version}"
+        test_template(schema_base, self.temp_dir.name)
+
+    def test_schema_JUnit(self):
+        schema_base = "JUnit"
+        test_template(schema_base, self.temp_dir.name)
+
+    def test_schema_xunit(self):
+        schema_base = "xunit"
+        test_template(schema_base, self.temp_dir.name)
 
 
 if __name__ == '__main__':
