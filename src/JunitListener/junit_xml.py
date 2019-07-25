@@ -10,8 +10,7 @@ import lxml.etree
 import os
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "..", "vendor")
-
+VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "vendor")
 
 def decode(var, encoding):
     return str(var)

@@ -7,7 +7,7 @@ from xmlrunner import XMLTestRunner
 import sys
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "vendor")
+VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "src", "JunitListener", "vendor")
 sys.path.append(os.path.join(CURRENT_DIRECTORY, "..", "src"))
 from JunitListener import JunitListener  # noqa: E402
 

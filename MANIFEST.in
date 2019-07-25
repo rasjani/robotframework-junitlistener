@@ -1,0 +1,5 @@
+recursive-exclude test *
+recursive-exclude azure *
+exclude .gitignore
+exclude *.yml
+exclude requirements-dev.txt
