@@ -25,8 +25,8 @@ class JunitListener(object):
     # suite attributes: name test_cases  hostname id package timestamp properties file log url stdout stderr
     # case attributes: name classname elapsed_sec stdout stderr assertions timestamp status category file line log group url
 
-    def __init__(self, junit_file="junit.xml", schema_version=9):
-        self.schema_version = int(schema_version)
+    def __init__(self, junit_file="junit.xml", junit_xslt ="junit-9"):
+        self.junit_xslt = junit_xslt
         # self.output=[]
         self.junit_file = junit_file
         language, encoding = locale.getdefaultlocale()
@@ -125,13 +125,12 @@ class JunitListener(object):
                               timestamp=iso8601(suite_attrs['starttime'], self.default_properties['timezone']),
                               hostname=self.hostname,
                               properties=properties,
-                              file=suite_attrs['source'],
-                              schema_version=self.schema_version)
+                              file=suite_attrs['source'])
+
             for case, case_attrs in self._testcases[suite_attrs['longname']].items():
                 case = TestCase(case_attrs['name'],
                                 classname=case_attrs['longname'],
                                 elapsed_sec=round(case_attrs['elapsedtime'] / 1000, 3),
-                                schema_version=self.schema_version,
                                 )
                 if case_attrs['status'] != 'PASS':
                     if case_attrs['critical'] == 'yes':
@@ -156,4 +155,4 @@ class JunitListener(object):
                 break
 
         with open(os.path.join(output_dir, self.junit_file), "w") as output:
-            TestSuite.to_file(output, results, schema_version=self.schema_version)
+            TestSuite.to_file(output, results, junit_xslt=self.junit_xslt)

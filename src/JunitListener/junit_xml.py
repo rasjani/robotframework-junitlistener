@@ -6,7 +6,12 @@ import sys
 import re
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+import lxml.etree
+import os
+from pprint import pprint
 
+CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "..", "vendor")
 
 def decode(var, encoding):
     return str(var)
@@ -20,9 +25,8 @@ class TestSuite(object):
 
     def __init__(self, name, test_cases=None, hostname=None, id=None,
                  package=None, timestamp=None, properties=None, file=None,
-                 log=None, url=None, stdout=None, stderr=None, schema_version=9):
+                 log=None, url=None, stdout=None, stderr=None):
         self.name = name
-        self.schema_version = int(schema_version)
         if not test_cases:
             test_cases = []
         try:
@@ -55,9 +59,8 @@ class TestSuite(object):
         if any(c.assertions for c in self.test_cases):
             test_suite_attributes['assertions'] = \
                 str(sum([int(c.assertions) for c in self.test_cases if c.assertions]))  # noqa: C407
-        if self.schema_version < 10:
-            test_suite_attributes['disabled'] = \
-                str(len([c for c in self.test_cases if not c.is_enabled]))
+        test_suite_attributes['disabled'] = \
+            str(len([c for c in self.test_cases if not c.is_enabled]))
         test_suite_attributes['failures'] = \
             str(len([c for c in self.test_cases if c.is_failure()]))
         test_suite_attributes['errors'] = \
@@ -92,24 +95,27 @@ class TestSuite(object):
                 attrs = {'name': decode(k, encoding), 'value': decode(v, encoding)}
                 ET.SubElement(props_element, "property", attrs)
 
+        """
         # add test suite stdout
         if self.stdout:
-            stdout_element = ET.SubElement(xml_element, "system-out")
-            stdout_element.text = decode(self.stdout, encoding)
+            self.stdout = ""
+        stdout_element = ET.SubElement(xml_element, "system-out")
+        stdout_element.text = decode(self.stdout, encoding)
 
         # add test suite stderr
         if self.stderr:
-            stderr_element = ET.SubElement(xml_element, "system-err")
-            stderr_element.text = decode(self.stderr, encoding)
+            self.stderr = ""
+        stderr_element = ET.SubElement(xml_element, "system-err")
+        stderr_element.text = decode(self.stderr, encoding)
+        """
 
         # test cases
         for case in self.test_cases:
             test_case_attributes = {}
             test_case_attributes['name'] = decode(case.name, encoding)
             if case.assertions:
-                # Number of assertions in the test case
                 test_case_attributes['assertions'] = "%d" % case.assertions
-            if case.elapsed_sec:
+            if case.elapsed_sec is not None:
                 test_case_attributes['time'] = "%.3f" % case.elapsed_sec
             if case.timestamp:
                 test_case_attributes['timestamp'] = decode(case.timestamp, encoding)
@@ -177,16 +183,27 @@ class TestSuite(object):
                 stderr_element.text = decode(case.stderr, encoding)
                 test_case_element.append(stderr_element)
 
+        # add test suite stdout
+        if self.stdout:
+            self.stdout = ""
+        stdout_element = ET.SubElement(xml_element, "system-out")
+        stdout_element.text = decode(self.stdout, encoding)
+
+        # add test suite stderr
+        if self.stderr:
+            self.stderr = ""
+        stderr_element = ET.SubElement(xml_element, "system-err")
+        stderr_element.text = decode(self.stderr, encoding)
+
         return xml_element
 
     @staticmethod
-    def to_xml_string(test_suites, prettyprint=True, encoding=None, schema_version=9):
+    def to_xml_string(test_suites, prettyprint=True, encoding=None, junit_xslt="junit-9"):
         """
         Returns the string representation of the JUnit XML document.
         @param encoding: The encoding of the input.
         @return: unicode string
         """
-
         try:
             iter(test_suites)
         except TypeError:
@@ -196,10 +213,7 @@ class TestSuite(object):
         attributes = defaultdict(int)
         for ts in test_suites:
             ts_xml = ts.build_xml_doc(encoding=encoding)
-            keys = ['failures', 'errors', 'tests']
-            if schema_version < 10:
-                keys = ['failures', 'errors', 'tests', 'disabled']
-
+            keys = ['failures', 'errors', 'tests', 'disabled']
             for key in keys:
                 attributes[key] += int(ts_xml.get(key, 0))
 
@@ -226,15 +240,26 @@ class TestSuite(object):
             if encoding:
                 xml_string = xml_string.decode(encoding)
             # is unicode now
-        return xml_string
+
+        # TODO: Run xml_string against xslt conversion
+        try:
+            xslt_file = os.path.join(VENDOR_DIRECTORY, f"{junit_xslt}.xsl")
+            dom = lxml.etree.fromstring(xml_string)
+            xslt = lxml.etree.parse(xslt_file)
+            transform = lxml.etree.XSLT(xslt)
+            newdom = transform(dom)
+            result = lxml.etree.tounicode(newdom, pretty_print=prettyprint)
+        except Exception as e:
+            print(f"FUCK: {e}")
+        return result
 
     @staticmethod
-    def to_file(file_descriptor, test_suites, prettyprint=True, encoding=None, schema_version=9):
+    def to_file(file_descriptor, test_suites, prettyprint=True, encoding=None, junit_xslt="junit-9"):
         """
         Writes the JUnit XML document to a file.
         """
         xml_string = TestSuite.to_xml_string(
-            test_suites, prettyprint=prettyprint, encoding=encoding, schema_version=schema_version)
+            test_suites, prettyprint=prettyprint, encoding=encoding, junit_xslt=junit_xslt)
         # has problems with encoded str with non-ASCII (non-default-encoding) characters!
         file_descriptor.write(xml_string)
 
@@ -270,7 +295,7 @@ class TestCase(object):
     def __init__(self, name, classname=None, elapsed_sec=None, stdout=None,
                  stderr=None, assertions=None, timestamp=None, status=None,
                  category=None, file=None, line=None, log=None, group=None,
-                 url=None, schema_version=9):
+                 url=None):
         self.name = name
         self.assertions = assertions
         self.elapsed_sec = elapsed_sec
@@ -284,7 +309,6 @@ class TestCase(object):
         self.url = url
         self.stdout = stdout
         self.stderr = stderr
-        self.schema_version = int(schema_version)
 
         self.is_enabled = True
         self.error_message = None
