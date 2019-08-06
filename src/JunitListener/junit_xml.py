@@ -8,10 +8,10 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom
 import lxml.etree
 import os
-from pprint import pprint
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "..", "vendor")
+
 
 def decode(var, encoding):
     return str(var)

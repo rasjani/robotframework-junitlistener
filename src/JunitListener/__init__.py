@@ -25,7 +25,7 @@ class JunitListener(object):
     # suite attributes: name test_cases  hostname id package timestamp properties file log url stdout stderr
     # case attributes: name classname elapsed_sec stdout stderr assertions timestamp status category file line log group url
 
-    def __init__(self, junit_file="junit.xml", junit_xslt ="junit-9"):
+    def __init__(self, junit_file="junit.xml", junit_xslt="junit-9"):
         self.junit_xslt = junit_xslt
         # self.output=[]
         self.junit_file = junit_file
