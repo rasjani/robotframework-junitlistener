@@ -143,10 +143,8 @@ class JunitListener(object):
                 suite.test_cases.append(case)
 
             results.append(suite)
-        """
-        with open("log.txt","w") as output:
-            output.write("\n".join(self.output))
-        """
+
+
         output_dir = "."
         for name in ['output_file', 'log_file', 'report_file', 'debug_file']:
             temp_file = self.default_properties.get(name, None)
@@ -154,5 +152,6 @@ class JunitListener(object):
                 output_dir = os.path.dirname(temp_file)
                 break
 
+        print("Writing report file to {} with schema format {}".format(self.junit_file, self.junit_xslt))
         with open(os.path.join(output_dir, self.junit_file), "w") as output:
             TestSuite.to_file(output, results, junit_xslt=self.junit_xslt)
