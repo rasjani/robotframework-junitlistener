@@ -241,16 +241,12 @@ class TestSuite(object):
                 xml_string = xml_string.decode(encoding)
             # is unicode now
 
-        # TODO: Run xml_string against xslt conversion
-        try:
-            xslt_file = os.path.join(VENDOR_DIRECTORY, f"{junit_xslt}.xsl")
-            dom = lxml.etree.fromstring(xml_string)
-            xslt = lxml.etree.parse(xslt_file)
-            transform = lxml.etree.XSLT(xslt)
-            newdom = transform(dom)
-            result = lxml.etree.tounicode(newdom, pretty_print=prettyprint)
-        except Exception as e:
-            print(f"FUCK: {e}")
+        xslt_file = os.path.join(VENDOR_DIRECTORY, junit_xslt + ".xsl")
+        dom = lxml.etree.fromstring(xml_string)
+        xslt = lxml.etree.parse(xslt_file)
+        transform = lxml.etree.XSLT(xslt)
+        newdom = transform(dom)
+        result = lxml.etree.tounicode(newdom, pretty_print=prettyprint)
         return result
 
     @staticmethod
