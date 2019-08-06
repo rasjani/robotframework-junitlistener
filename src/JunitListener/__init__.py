@@ -1,5 +1,4 @@
 from .junit_xml import TestSuite, TestCase
-from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import os
 import datetime
 import tzlocal
@@ -150,7 +149,7 @@ class JunitListener(object):
             output.write("\n".join(self.output))
         """
         output_dir = "."
-        for name in ['output_file', 'log_file','report_file', 'debug_file']:
+        for name in ['output_file', 'log_file', 'report_file', 'debug_file']:
             temp_file = self.default_properties.get(name, None)
             if temp_file:
                 output_dir = os.path.dirname(temp_file)
