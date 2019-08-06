@@ -49,7 +49,5 @@ class JunitListenerAcceptanceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     with open('acceptance_tests.xml', 'wb') as output:
-        unittest.main(
-            testRunner=XMLTestRunner(output=output),
-            failfast=False, buffer=False, catchbreak=False)
-    unittest.main()
+        unittest.main(testRunner=XMLTestRunner(output=output),
+                      failfast=False, buffer=False, catchbreak=False)
