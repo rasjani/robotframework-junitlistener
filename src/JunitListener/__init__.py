@@ -7,7 +7,6 @@ import locale
 import platform
 import pytz
 
-
 def iso8601(robot_timestring, timezone_str):
     date_time_obj = datetime.datetime.strptime(robot_timestring, '%Y%m%d %H:%M:%S.%f')
     timezone = pytz.timezone(timezone_str)
@@ -27,10 +26,11 @@ class JunitListener(object):
 
     def __init__(self, junit_file="junit.xml", junit_xslt="junit-9"):
         self.junit_xslt = junit_xslt
-        # self.output=[]
+        #self.output=[]
         self.junit_file = junit_file
         language, encoding = locale.getdefaultlocale()
         self.hostname = platform.node()
+        self.robot_settings = {}
         self.default_properties = {
             "timezone": tzlocal.get_localzone().zone,
             "timezone_offset": time.timezone,
@@ -78,7 +78,27 @@ class JunitListener(object):
 
     def log_message(self, message):
         pass
-        # self.output.append(f"log_message: {message}")
+        #TODO: add to stdout of current testcase
+        #self.output.append(f"log_message: {message}")
+
+    def message(self, message):
+        if message['message'].startswith("Settings"):
+            payload = message['message'].split("\n")[1:]
+            for item in payload:
+                key, value = item.split(": ")
+                try:
+                    value = eval(value)
+                except NameError:
+                    pass
+                except SyntaxError:
+                    try:
+                        value = eval(value.replace("<","\"<").replace(">",">\""))
+                    except:
+                        pass
+                except Exception as e:
+                    pass
+
+                self.robot_settings[key] = value
 
     def library_import(self, name, attrs):
         if self._current_suite:
@@ -108,6 +128,7 @@ class JunitListener(object):
         results = []
         for suite_name, suite_attrs in self._suites.items():
             properties = dict(self.default_properties)
+            properties.update(self.robot_settings)
             if suite_attrs['doc']:
                 properties['Documentation'] = suite_attrs['doc']
 
@@ -144,14 +165,20 @@ class JunitListener(object):
 
             results.append(suite)
 
-
-        output_dir = "."
-        for name in ['output_file', 'log_file', 'report_file', 'debug_file']:
-            temp_file = self.default_properties.get(name, None)
-            if temp_file:
-                output_dir = os.path.dirname(temp_file)
-                break
-
+        self.junit_file = os.path.join(self.output_path(), self.junit_file)
         print("Writing report file to {} with schema format {}".format(self.junit_file, self.junit_xslt))
-        with open(os.path.join(output_dir, self.junit_file), "w") as output:
+        with open(self.junit_file, "w") as output:
             TestSuite.to_file(output, results, junit_xslt=self.junit_xslt)
+        """
+        with open("log.txt","w") as output:
+            output.write(self.robot_settings)
+        """
+
+    def output_path(self):
+        def guess():
+            for name in ['output_file', 'log_file', 'report_file', 'debug_file']:
+                temp_file = self.default_properties.get(name, None)
+                if temp_file:
+                    return os.path.dirname(temp_file)
+            return "."
+        return self.robot_settings.get('OutputDir', None) or guess()
