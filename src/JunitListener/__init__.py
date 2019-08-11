@@ -7,6 +7,7 @@ import locale
 import platform
 import pytz
 
+
 def iso8601(robot_timestring, timezone_str):
     date_time_obj = datetime.datetime.strptime(robot_timestring, '%Y%m%d %H:%M:%S.%f')
     timezone = pytz.timezone(timezone_str)
@@ -26,7 +27,7 @@ class JunitListener(object):
 
     def __init__(self, junit_file="junit.xml", junit_xslt="junit-9"):
         self.junit_xslt = junit_xslt
-        #self.output=[]
+        # self.output=[]
         self.junit_file = junit_file
         language, encoding = locale.getdefaultlocale()
         self.hostname = platform.node()
@@ -47,6 +48,8 @@ class JunitListener(object):
             attrs['libraries'] = set()
             attrs['variables'] = set()
             attrs['resources'] = set()
+            attrs['stdout'] = []
+            attrs['stderr'] = []
             self._suites[current_suite] = attrs
             self._testcases[current_suite] = {}
 
@@ -55,18 +58,22 @@ class JunitListener(object):
             current_suite = attrs['longname']
             attrs['name'] = name
             self._suites[current_suite].update(attrs)
+            self._current_suite = None
 
     def start_test(self, name, attrs):
         current_case = attrs['longname']
         self._current_case = current_case
 
         attrs['name'] = name
+        attrs['stdout'] = []
+        attrs['stderr'] = []
         self._testcases[self._current_suite][current_case] = attrs
 
     def end_test(self, name, attrs):
         current_case = attrs['longname']
         attrs['name'] = name
         self._testcases[self._current_suite][current_case].update(attrs)
+        self._current_case = None
 
     def start_keyword(self, name, attrs):
         pass
@@ -77,9 +84,15 @@ class JunitListener(object):
         # self.output.append(f"end_keyword: {name} {attrs}")
 
     def log_message(self, message):
-        pass
-        #TODO: add to stdout of current testcase
-        #self.output.append(f"log_message: {message}")
+        identifiers = ['Return', 'Arguments']
+        msg_identifier = message['message'].split(":")[0]
+        if msg_identifier not in identifiers:
+            if None not in [self._current_case, self._current_suite]:
+                if message['level'] == 'FAIL':
+                    self._testcases[self._current_suite][self._current_case]['stderr'].append(message['message'])
+                else:
+                    self._testcases[self._current_suite][self._current_case]['stdout'].append(message['message'])
+
 
     def message(self, message):
         if message['message'].startswith("Settings"):
@@ -92,10 +105,10 @@ class JunitListener(object):
                     pass
                 except SyntaxError:
                     try:
-                        value = eval(value.replace("<","\"<").replace(">",">\""))
-                    except:
+                        value = eval(value.replace("<", "\"<").replace(">", ">\""))
+                    except Exception:
                         pass
-                except Exception as e:
+                except Exception:
                     pass
 
                 self.robot_settings[key] = value
@@ -147,11 +160,12 @@ class JunitListener(object):
                               hostname=self.hostname,
                               properties=properties,
                               file=suite_attrs['source'])
-
             for case, case_attrs in self._testcases[suite_attrs['longname']].items():
                 case = TestCase(case_attrs['name'],
                                 classname=case_attrs['longname'],
                                 elapsed_sec=round(case_attrs['elapsedtime'] / 1000, 3),
+                                stdout="\n".join(case_attrs['stdout']),
+                                stderr="\n".join(case_attrs['stderr']),
                                 )
                 if case_attrs['status'] != 'PASS':
                     if case_attrs['critical'] == 'yes':
@@ -171,7 +185,7 @@ class JunitListener(object):
             TestSuite.to_file(output, results, junit_xslt=self.junit_xslt)
         """
         with open("log.txt","w") as output:
-            output.write(self.robot_settings)
+            output.write("\n".join(self.output))
         """
 
     def output_path(self):

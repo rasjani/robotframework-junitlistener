@@ -24,7 +24,7 @@ def test_template(schema_base, temp_dir):
               log="NONE",
               report="NONE",
               output="NONE",
-              loglevel="NONE")
+              loglevel="TRACE:TRACE")
     schema.validate(result_file)
 
 

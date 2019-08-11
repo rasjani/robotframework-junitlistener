@@ -12,6 +12,8 @@
     <xsl:template match="skipped"/>
     <xsl:template match="testsuite/system-out" />
     <xsl:template match="testsuite/system-err" />
+    <xsl:template match="testcase/system-out" />
+    <xsl:template match="testcase/system-err" />
     <xsl:template match="testsuite/@id">
       <xsl:attribute name="{name(.)}">
           <xsl:value-of select="translate(., 'st-','')" />

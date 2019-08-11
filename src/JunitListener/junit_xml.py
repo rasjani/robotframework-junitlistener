@@ -12,6 +12,7 @@ import os
 CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 VENDOR_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "vendor")
 
+
 def decode(var, encoding):
     return str(var)
 
@@ -184,15 +185,13 @@ class TestSuite(object):
 
         # add test suite stdout
         if self.stdout:
-            self.stdout = ""
-        stdout_element = ET.SubElement(xml_element, "system-out")
-        stdout_element.text = decode(self.stdout, encoding)
+            stdout_element = ET.SubElement(xml_element, "system-out")
+            stdout_element.text = decode(self.stdout, encoding)
 
         # add test suite stderr
         if self.stderr:
-            self.stderr = ""
-        stderr_element = ET.SubElement(xml_element, "system-err")
-        stderr_element.text = decode(self.stderr, encoding)
+            stderr_element = ET.SubElement(xml_element, "system-err")
+            stderr_element.text = decode(self.stderr, encoding)
 
         return xml_element
 

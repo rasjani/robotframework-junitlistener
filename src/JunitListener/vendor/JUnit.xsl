@@ -11,6 +11,8 @@
     <xsl:template match="skipped"/>
     <xsl:template match="testsuite/@file" />
     <xsl:template match="testsuite/@disabled" />
+    <xsl:template match="testcase/system-err"/>
+    <xsl:template match="testcase/system-out"/>
 
     <xsl:template match="testsuite/@id">
       <xsl:attribute name="{name(.)}">
@@ -30,5 +32,18 @@
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
+
+
+  <xsl:template match="testsuite">
+    <xsl:copy>
+      <xsl:apply-templates select="node()|@*"/>
+      <xsl:if test="not(system-out)">
+        <system-out></system-out>
+      </xsl:if>
+      <xsl:if test="not(system-err)">
+        <system-err></system-err>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
 
 </xsl:stylesheet>

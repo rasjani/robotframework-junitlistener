@@ -11,11 +11,15 @@ ${BAR}                    BAR
 Another Dummy
   [Arguments]             ${msg}
   Log To Console          Another Dummy: ${msg}
+  Log                     Info String     level=INFO
+  Log                     TRACE String     level=TRACE
 
 
 *** Test Cases ***
 Fifth Test Case
   [Tags]                  working
+  Log                     JANIWASHERE     level=INFO
+  Log                     TRACE String     level=TRACE
   Another Dummy           ${FOO} vs ${BAR}
 
 Sixth Test Case
