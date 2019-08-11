@@ -166,7 +166,7 @@ class JunitListener(object):
             results.append(suite)
 
         self.junit_file = os.path.join(self.output_path(), self.junit_file)
-        print("Writing report file to {} with schema format {}".format(self.junit_file, self.junit_xslt))
+        print("{:<9}{}".format(self.junit_xslt.capitalize() + ":", self.junit_file))
         with open(self.junit_file, "w") as output:
             TestSuite.to_file(output, results, junit_xslt=self.junit_xslt)
         """
